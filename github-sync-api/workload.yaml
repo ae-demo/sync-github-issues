@@ -1,0 +1,38 @@
+apiVersion: openchoreo.dev/v1alpha1
+metadata:
+  name: github-sync-api
+
+endpoints:
+  - name: http
+    type: HTTP
+    port: 9090
+    basePath: /
+    visibility:
+      - project
+      - internal
+      - external
+
+dependencies:
+  resources:
+    - ref: sync-github-issue-24469684
+      envBindings:
+        client_id: USER_AUTH_CLIENT_ID
+        issuer: USER_AUTH_ISSUER
+        jwks_url: USER_AUTH_JWKS_URL
+        resource: USER_AUTH_RESOURCE
+        scopes: USER_AUTH_SCOPES
+    - ref: sync-github-issues-sync-db
+      envBindings:
+        dbname: SYNC_DB_DBNAME
+        host: SYNC_DB_HOST
+        password: SYNC_DB_PASSWORD
+        port: SYNC_DB_PORT
+        user: SYNC_DB_USER
+    - ref: sync-github-issues-github
+      envBindings:
+        GITHUB_CLIENT_ID: GITHUB_CLIENT_ID
+        GITHUB_CLIENT_SECRET: GITHUB_CLIENT_SECRET
+        GITHUB_OAUTH_REDIRECT_URI: GITHUB_OAUTH_REDIRECT_URI
+    - ref: sync-github-issue-5eac2ae4
+      envBindings:
+        GOOGLE_CHAT_WEBHOOK_URL: GOOGLE_CHAT_WEBHOOK_URL
