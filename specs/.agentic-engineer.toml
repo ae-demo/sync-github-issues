@@ -1,0 +1,4 @@
+apiVersion = "agentic-engineer/v1"
+name = "sync-github-issues"
+createdAt = "2026-09-24T08:23:59Z"
+idea = "sync my github issues that are labeled as critical into a google chat"
