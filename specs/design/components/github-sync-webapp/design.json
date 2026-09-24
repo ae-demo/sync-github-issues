@@ -7,11 +7,52 @@
   "appPath": "github-sync-webapp",
   "entrypoint": "deployment/web-application",
   "exposure": "internet",
-  "dependencies": [
-    { "kind": "component", "name": "github-sync-api", "description": "All configuration and status data — watched repositories, the Chat destination, the GitHub connection, and the notification log." },
-    { "kind": "platform-resource", "name": "user-auth", "resourceType": "thunder-app" }
+  "stories": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    9
   ],
   "description": "Admin web app for the GitHub-to-Google-Chat critical issue sync. Lets the Administrator sign in, connect their GitHub account, manage the watched-repository list, configure the destination Google Chat space, and review the notification log. Holds no business logic of its own — every action calls github-sync-api.",
-  "stories": [1, 2, 3, 4, 5, 6, 9],
-  "skillsPinned": ["wireframes", "react-webapp", "oxygen-ui-design-system", "thunder-authentication"]
+  "dependencies": [
+    {
+      "kind": "component",
+      "name": "github-sync-api",
+      "description": "All configuration and status data — watched repositories, the Chat destination, the GitHub connection, and the notification log.",
+      "wiring": {
+        "endpoint": {
+          "component": "sync-github-issues-github-sync-api",
+          "name": "http",
+          "visibility": "project",
+          "envBindings": {
+            "address": "GITHUB_SYNC_API_URL"
+          }
+        }
+      }
+    },
+    {
+      "kind": "platform-resource",
+      "name": "user-auth",
+      "resourceType": "thunder-app",
+      "wiring": {
+        "ref": "sync-github-issue-24469684",
+        "envBindings": {
+          "client_id": "USER_AUTH_CLIENT_ID",
+          "issuer": "USER_AUTH_ISSUER",
+          "jwks_url": "USER_AUTH_JWKS_URL",
+          "resource": "USER_AUTH_RESOURCE",
+          "scopes": "USER_AUTH_SCOPES"
+        }
+      }
+    }
+  ],
+  "skillsPinned": [
+    "wireframes",
+    "react-webapp",
+    "oxygen-ui-design-system",
+    "thunder-authentication"
+  ]
 }
