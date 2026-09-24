@@ -23,6 +23,7 @@ An integration that watches a configurable set of GitHub repositories for issues
 6. As an Administrator, I want to see a log of recent notifications the system has sent, so that I can confirm delivery is working.
 7. As a Team Member, I want each critical-issue notification in Google Chat to show the issue's title, repository, and a link back to GitHub, so that I can open and act on it immediately.
 8. As an Administrator, I want the system to never send more than one notification for the same critical issue, so that the chat space isn't spammed with duplicates.
+9. As an Administrator, I want to connect my GitHub account through a sign-in-with-GitHub flow, so that I never have to create or paste an access token by hand.
 
 ## Product Decisions
 
@@ -35,7 +36,7 @@ An integration that watches a configurable set of GitHub repositories for issues
 - Detection mechanism: the system polls GitHub periodically for new critical issues on watched repositories, rather than relying on GitHub webhooks *assumed*.
 - Poll frequency: every 5 minutes *assumed*.
 - Notification content: each Google Chat message includes the issue title, repository name, and a direct link to the GitHub issue *assumed*.
-- GitHub access: the Administrator supplies a GitHub access token with read access to the watched repositories during setup *assumed*.
+- GitHub access: the Administrator authorizes the product via a GitHub OAuth sign-in flow, which grants read access to the watched repositories — no manual token creation or pasting (Product Decision, from interview).
 
 ## Out of Scope
 
@@ -47,7 +48,7 @@ An integration that watches a configurable set of GitHub repositories for issues
 
 ## Open Questions
 
-1. Does the Administrator already hold a GitHub access token (personal access token or GitHub App installation) to supply during setup, or does the product need to walk them through creating one?
+None.
 
 ## Further Notes
 
