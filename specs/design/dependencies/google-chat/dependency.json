@@ -1,0 +1,13 @@
+{
+  "name": "google-chat",
+  "resource": {
+    "name": "google-chat",
+    "description": "Google Chat — the destination space critical-issue notifications are posted into, via an incoming webhook the Administrator configures for that space.",
+    "provider": "Google Chat",
+    "config": [
+      { "key": "GOOGLE_CHAT_WEBHOOK_URL", "secret": true, "description": "The incoming webhook URL for the destination Google Chat space (Space settings > Apps & integrations > Webhooks)" }
+    ],
+    "contract": { "type": "openapi", "path": "openapi.yaml", "origin": "derived" }
+  },
+  "provenance": { "sourceUrl": "https://developers.google.com/workspace/chat/quickstart/webhooks" }
+}

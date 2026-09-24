@@ -1,0 +1,38 @@
+openapi: 3.0.3
+info:
+  title: Google Chat Incoming Webhook
+  version: "1.0.0"
+  description: >
+    Posting a message to a Google Chat space via its incoming webhook URL. The
+    full webhook URL (including its own access token) is held as one config
+    value; this document describes the body shape posted to it.
+servers:
+  - url: https://chat.googleapis.com
+paths:
+  /:
+    post:
+      operationId: postMessage
+      summary: Post a text message into the configured Chat space
+      x-aep-source: https://developers.google.com/workspace/chat/quickstart/webhooks
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [text]
+              properties:
+                text:
+                  type: string
+                  description: The message body, e.g. the critical issue's title and link
+      responses:
+        '200':
+          description: The message was posted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name: { type: string }
+        '400':
+          description: The request body was malformed

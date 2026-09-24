@@ -1,0 +1,317 @@
+openapi: 3.0.3
+info:
+  title: Issue Sync API
+  version: "0.1.0"
+  description: >
+    Manages the GitHub-to-Google-Chat critical issue sync: the Administrator's
+    GitHub connection, the watched-repository list, the Google Chat
+    destination, and the log of notifications sent.
+servers:
+  - url: /
+security:
+  - oauth2: []
+paths:
+  /github-connection:
+    get:
+      operationId: getGithubConnection
+      summary: The caller's GitHub connection status
+      security:
+        - oauth2: [github-connection:read]
+      responses:
+        '200':
+          description: The current connection, or none
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GithubConnection'
+        '401':
+          description: Not signed in
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      operationId: createGithubConnection
+      summary: Complete GitHub OAuth authorization and store the connection
+      security:
+        - oauth2: [github-connection:manage]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [code]
+              properties:
+                code:
+                  type: string
+                  description: The OAuth authorization code returned by GitHub
+      responses:
+        '201':
+          description: The connection was created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GithubConnection'
+        '400':
+          description: The authorization code was invalid or expired
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Not signed in
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      operationId: deleteGithubConnection
+      summary: Disconnect the authorized GitHub account
+      security:
+        - oauth2: [github-connection:manage]
+      responses:
+        '204':
+          description: Disconnected
+        '401':
+          description: Not signed in
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /watched-repositories:
+    get:
+      operationId: listWatchedRepositories
+      summary: Every watched repository
+      security:
+        - oauth2: [watched-repositories:read]
+      parameters:
+        - name: limit
+          in: query
+          schema: { type: integer, default: 20, maximum: 100 }
+        - name: offset
+          in: query
+          schema: { type: integer, default: 0 }
+      responses:
+        '200':
+          description: Watched repositories
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [count, data]
+                properties:
+                  count: { type: integer, description: total matching items }
+                  next: { type: string, nullable: true, description: relative URI of the next page }
+                  previous: { type: string, nullable: true, description: relative URI of the previous page }
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/WatchedRepository'
+        '401':
+          description: Not signed in
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      operationId: addWatchedRepository
+      summary: Add a repository to the watch list
+      security:
+        - oauth2: [watched-repositories:manage]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [owner, name]
+              properties:
+                owner: { type: string }
+                name: { type: string }
+      responses:
+        '201':
+          description: The repository was added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WatchedRepository'
+        '400':
+          description: The repository is already watched or invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Not signed in
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /watched-repositories/{repositoryId}:
+    delete:
+      operationId: removeWatchedRepository
+      summary: Remove a repository from the watch list
+      security:
+        - oauth2: [watched-repositories:manage]
+      parameters:
+        - name: repositoryId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '204':
+          description: Removed
+        '404':
+          description: No watched repository with this id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Not signed in
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /chat-destination:
+    get:
+      operationId: getChatDestination
+      summary: The configured Google Chat destination
+      security:
+        - oauth2: [chat-destination:read]
+      responses:
+        '200':
+          description: The destination, or none configured
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatDestination'
+        '401':
+          description: Not signed in
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      operationId: setChatDestination
+      summary: Set the Google Chat space notifications are posted to
+      security:
+        - oauth2: [chat-destination:manage]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [spaceName, webhookUrl]
+              properties:
+                spaceName: { type: string }
+                webhookUrl: { type: string }
+      responses:
+        '200':
+          description: The destination was set
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatDestination'
+        '400':
+          description: The webhook URL was invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Not signed in
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /notifications:
+    get:
+      operationId: listNotifications
+      summary: The log of notifications sent, most recent first
+      security:
+        - oauth2: [notifications:read]
+      parameters:
+        - name: limit
+          in: query
+          schema: { type: integer, default: 20, maximum: 100 }
+        - name: offset
+          in: query
+          schema: { type: integer, default: 0 }
+      responses:
+        '200':
+          description: Sent notifications
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [count, data]
+                properties:
+                  count: { type: integer, description: total matching items }
+                  next: { type: string, nullable: true, description: relative URI of the next page }
+                  previous: { type: string, nullable: true, description: relative URI of the previous page }
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Notification'
+        '401':
+          description: Not signed in
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: /oauth2/authorize
+          tokenUrl: /oauth2/token
+          scopes:
+            github-connection:read: View the GitHub connection status
+            github-connection:manage: Connect or disconnect the GitHub account
+            watched-repositories:read: View watched repositories
+            watched-repositories:manage: Add or remove watched repositories
+            chat-destination:read: View the configured Chat destination
+            chat-destination:manage: Set the Chat destination
+            notifications:read: View the notification log
+  schemas:
+    Error:
+      type: object
+      required: [code, message]
+      properties:
+        code: { type: integer, description: HTTP or application error code }
+        message: { type: string, description: short human-readable label }
+        description: { type: string, description: detailed explanation }
+        moreInfo: { type: string, description: URI to documentation }
+    GithubConnection:
+      type: object
+      properties:
+        connected: { type: boolean }
+        githubUsername: { type: string, nullable: true }
+        connectedAt: { type: string, format: date-time, nullable: true }
+    WatchedRepository:
+      type: object
+      properties:
+        id: { type: string }
+        owner: { type: string }
+        name: { type: string }
+        addedAt: { type: string, format: date-time }
+    ChatDestination:
+      type: object
+      properties:
+        spaceName: { type: string, nullable: true }
+        webhookUrl: { type: string, nullable: true }
+        updatedAt: { type: string, format: date-time, nullable: true }
+    Notification:
+      type: object
+      properties:
+        id: { type: string }
+        repositoryFullName: { type: string }
+        issueTitle: { type: string }
+        issueUrl: { type: string }
+        sentAt: { type: string, format: date-time }
+        status: { type: string, enum: [sent, failed] }

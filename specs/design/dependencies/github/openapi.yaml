@@ -1,0 +1,128 @@
+openapi: 3.0.3
+info:
+  title: GitHub (subset used by sync-github-issues)
+  version: "1.0.0"
+  description: >
+    The subset of GitHub's REST API and OAuth token exchange this product calls:
+    authorizing the Administrator's account, listing the repositories they can
+    grant access to, and polling a repository's open issues labeled "critical".
+servers:
+  - url: https://api.github.com
+paths:
+  /login/oauth/access_token:
+    servers:
+      - url: https://github.com
+    post:
+      operationId: exchangeOAuthCode
+      summary: Exchange an OAuth authorization code for an access token
+      x-aep-source: https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [client_id, client_secret, code]
+              properties:
+                client_id: { type: string }
+                client_secret: { type: string }
+                code: { type: string }
+                redirect_uri: { type: string }
+      responses:
+        '200':
+          description: The access token for the authorizing user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token: { type: string }
+                  scope: { type: string }
+                  token_type: { type: string }
+  /user:
+    get:
+      operationId: getAuthenticatedUser
+      summary: Get the GitHub user who authorized the app
+      x-aep-source: https://docs.github.com/en/rest/users/users#get-the-authenticated-user
+      responses:
+        '200':
+          description: The authenticated GitHub user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+  /user/repos:
+    get:
+      operationId: listReposForAuthenticatedUser
+      summary: List repositories the authorizing user can grant access to
+      x-aep-source: https://docs.github.com/en/rest/repos/repos#list-repositories-for-the-authenticated-user
+      responses:
+        '200':
+          description: Repositories visible to the authenticated user
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Repository'
+  /repos/{owner}/{repo}/issues:
+    get:
+      operationId: listRepositoryIssues
+      summary: List a repository's issues, filterable by label and state
+      x-aep-source: https://docs.github.com/en/rest/issues/issues#list-repository-issues
+      parameters:
+        - name: owner
+          in: path
+          required: true
+          schema: { type: string }
+        - name: repo
+          in: path
+          required: true
+          schema: { type: string }
+        - name: labels
+          in: query
+          schema: { type: string }
+          description: Comma-separated label names, e.g. "critical"
+        - name: state
+          in: query
+          schema: { type: string, enum: [open, closed, all], default: open }
+      responses:
+        '200':
+          description: Issues matching the filter
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Issue'
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id: { type: integer }
+        login: { type: string }
+    Repository:
+      type: object
+      properties:
+        id: { type: integer }
+        full_name: { type: string }
+        owner:
+          type: object
+          properties:
+            login: { type: string }
+        name: { type: string }
+    Issue:
+      type: object
+      properties:
+        id: { type: integer }
+        number: { type: integer }
+        title: { type: string }
+        html_url: { type: string }
+        state: { type: string }
+        labels:
+          type: array
+          items:
+            type: object
+            properties:
+              name: { type: string }

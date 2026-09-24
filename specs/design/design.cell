@@ -1,0 +1,19 @@
+title sync-github-issues
+
+component github-sync-webapp as "Issue Sync Admin" web-application
+component github-sync-api as "Issue Sync API" service
+component sync-db as "Sync Database" database
+
+east user-auth as "Thunder Auth" identity-server
+south github as "GitHub" service
+south google-chat as "Google Chat" service
+
+north -> github-sync-webapp
+
+github-sync-webapp -> github-sync-api
+github-sync-webapp -> user-auth
+
+github-sync-api -> user-auth
+github-sync-api -> sync-db
+github-sync-api -> github
+github-sync-api -> google-chat

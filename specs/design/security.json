@@ -1,0 +1,63 @@
+{
+  "version": 3,
+  "permissions": [
+    {
+      "resource": "github-connection",
+      "component": "github-sync-api",
+      "description": "The Administrator's GitHub OAuth authorization",
+      "actions": [
+        { "handle": "read", "description": "View the connection status" },
+        { "handle": "manage", "description": "Connect or disconnect the GitHub account" }
+      ]
+    },
+    {
+      "resource": "watched-repositories",
+      "component": "github-sync-api",
+      "description": "Repositories watched for critical issues",
+      "actions": [
+        { "handle": "read", "description": "View the watch list" },
+        { "handle": "manage", "description": "Add or remove a watched repository" }
+      ]
+    },
+    {
+      "resource": "chat-destination",
+      "component": "github-sync-api",
+      "description": "The configured Google Chat destination",
+      "actions": [
+        { "handle": "read", "description": "View the destination" },
+        { "handle": "manage", "description": "Set the destination" }
+      ]
+    },
+    {
+      "resource": "notifications",
+      "component": "github-sync-api",
+      "description": "The log of notifications sent",
+      "actions": [
+        { "handle": "read", "description": "View the notification log" }
+      ]
+    }
+  ],
+  "groups": [
+    { "name": "SyncAdmins", "description": "People who administer the critical-issue sync configuration" }
+  ],
+  "roles": [
+    {
+      "name": "Administrator",
+      "description": "Connects GitHub, manages the watch list and Chat destination, and reviews the notification log.",
+      "stories": [1, 2, 3, 4, 5, 6, 8, 9],
+      "grants": [
+        "github-connection:read",
+        "github-connection:manage",
+        "watched-repositories:read",
+        "watched-repositories:manage",
+        "chat-destination:read",
+        "chat-destination:manage",
+        "notifications:read"
+      ],
+      "assignTo": ["SyncAdmins"]
+    }
+  ],
+  "testUsers": [
+    { "username": "test-administrator", "roles": ["Administrator"] }
+  ]
+}

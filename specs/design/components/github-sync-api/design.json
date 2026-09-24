@@ -1,0 +1,19 @@
+{
+  "name": "github-sync-api",
+  "type": "service",
+  "version": "0.1.0",
+  "language": "Ballerina",
+  "buildpack": "docker",
+  "appPath": "github-sync-api",
+  "entrypoint": "deployment/service",
+  "exposure": "internet",
+  "dependencies": [
+    { "kind": "platform-resource", "name": "user-auth", "resourceType": "thunder-app" },
+    { "kind": "platform-resource", "name": "sync-db", "resourceType": "postgres-cnpg" },
+    { "kind": "external", "name": "github", "description": "Exchanges the Administrator's OAuth code for an access token, lists their repositories, and polls each watched repository's open issues labeled critical." },
+    { "kind": "external", "name": "google-chat", "description": "Posts a notification message when a new critical issue is found on a watched repository." }
+  ],
+  "description": "Backend for the GitHub-to-Google-Chat critical issue sync. Owns the watched-repository list, the Google Chat destination, the Administrator's GitHub OAuth connection, and the periodic poll that detects new critical issues and posts a notification exactly once per issue. Exposes the API the admin web app calls; does not render any UI and never writes back to GitHub.",
+  "stories": [2, 3, 4, 5, 6, 7, 8, 9],
+  "skillsPinned": ["openapi-conventions", "ballerina", "api-management", "thunder-authentication"]
+}

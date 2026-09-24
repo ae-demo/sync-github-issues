@@ -1,0 +1,15 @@
+{
+  "name": "github",
+  "resource": {
+    "name": "github",
+    "description": "GitHub — source of the issues this product watches. The Administrator authorizes access via a GitHub OAuth sign-in flow, and the backend polls each watched repository's issues for the \"critical\" label using that authorization.",
+    "provider": "GitHub",
+    "config": [
+      { "key": "GITHUB_CLIENT_ID", "description": "Client ID of the GitHub OAuth App registered for this integration" },
+      { "key": "GITHUB_CLIENT_SECRET", "secret": true, "description": "Client secret of the GitHub OAuth App" },
+      { "key": "GITHUB_OAUTH_REDIRECT_URI", "description": "Callback URL GitHub redirects the Administrator back to after authorizing, e.g. https://<app-host>/oauth/github/callback" }
+    ],
+    "contract": { "type": "openapi", "path": "openapi.yaml", "origin": "derived" }
+  },
+  "provenance": { "sourceUrl": "https://docs.github.com/en/rest/issues/issues#list-repository-issues" }
+}
